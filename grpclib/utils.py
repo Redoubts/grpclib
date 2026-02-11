@@ -1,4 +1,3 @@
-import sys
 import signal
 import asyncio
 import warnings
@@ -8,12 +7,6 @@ from typing import TYPE_CHECKING, Optional, Set, Type, ContextManager, List
 from typing import Iterator, Collection, Callable, Any, cast
 from functools import wraps
 from contextlib import contextmanager
-
-
-if sys.version_info > (3, 7):
-    _current_task = asyncio.current_task
-else:
-    _current_task = asyncio.Task.current_task
 
 
 if TYPE_CHECKING:
@@ -50,7 +43,7 @@ class Wrapper(ContextManager[None]):
         if self._error is not None:
             raise self._error
 
-        task = _current_task()
+        task = asyncio.current_task()
         if task is None:
             raise RuntimeError('Called not inside a task')
 
@@ -62,7 +55,7 @@ class Wrapper(ContextManager[None]):
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:
-        task = _current_task()
+        task = asyncio.current_task()
         assert task
         self._tasks.discard(task)
         if self._error is not None:
